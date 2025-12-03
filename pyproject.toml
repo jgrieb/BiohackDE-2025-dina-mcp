@@ -1,0 +1,43 @@
+[project]
+name = "dina-mcp"
+version = "0.1.0"
+description = "MCP server for DINA Collection Management System"
+authors = [
+    {name = "Jonas Grieb", email = "jonas.grieb@senckennberg.de"},
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+keywords = ["dina", "MCP", "agent-coding", "ai", "digital-repository", "model-context-protocol"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "requests[socks]>=2.25.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/jgrieb/BiohackDE-2025-dina-mcp"
+Repository = "https://github.com/jrieb/BiohackDE-2025-dina-mcp"
+
+
+[project.scripts]
+dina-mcp = "dina_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dina_mcp"]
