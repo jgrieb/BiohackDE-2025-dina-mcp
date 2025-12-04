@@ -23,73 +23,113 @@ mcp = FastMCP("dina-mcp", host=config.host)
 
     Build an ElasticSearch query JSON object for free text queries.
     Optionally combined with additional constraints.
-    The mandatory parameter "query" must be a json object/ python dictonary follow ElasticSearch query syntax. For example,
+    The mandatory parameter "queryBody" must be a json object/ python dictonary follow ElasticSearch query syntax. For example,
     for a simple free text query looking for "Haematostaphis barter" pass the following JSON:
-    "bool": {
-        "must": [
-            {
-                "simple_query_string": {
-                    "query": "Haematostaphis barter",
-                    "fields": ["*"],
-                }
+    {
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "simple_query_string": {
+                            "query": "Haematostaphis barter",
+                            "fields": ["*"],
+                        }
+                    }
+                ]
             }
-        ]
+        },
+        "_source": {
+            "includes": [
+                "data.id",
+                "data.type",
+                "data.attributes.materialSampleName",
+                "included.attributes.name",
+                "data.attributes.dwcOtherCatalogNumbers",
+                "data.attributes.materialSampleType",
+                "data.attributes.materialSampleState",
+                "data.attributes.effectiveScientificName",
+                "included.attributes.startEventDateTime",
+                "included.type",
+            ]
+        }
     }
 
     For a more refined query with additional constraints, for example looking only for recors in a collection with the
     name "Herbarium Senckenbergianum (FR) - Plantae", the JSON can be extended accordingly:
     {
-    "bool": {
-        "must": [
-        {
-            "nested": {
-            "path": "included",
-            "query": {
-                "bool": {
-                "must": [
-                    {
-                    "term": {
-                        "included.attributes.name.keyword": "Herbarium Senckenbergianum (FR) - Plantae"
+        "query": {
+        "bool": {
+            "must": [
+            {
+                "nested": {
+                "path": "included",
+                "query": {
+                    "bool": {
+                    "must": [
+                        {
+                        "term": {
+                            "included.attributes.name.keyword": "Herbarium Senckenbergianum (FR) - Plantae"
+                        }
+                        },
+                        {
+                        "term": {
+                            "included.type": "collection"
+                        }
+                        }
+                    ]
                     }
-                    },
-                    {
-                    "term": {
-                        "included.type": "collection"
-                    }
-                    }
+                }
+                }
+            },
+            {
+                "simple_query_string": {
+                "query": "Haematostaphis barter",
+                "fields": [
+                    "*"
                 ]
                 }
             }
-            }
-        },
-        {
-            "simple_query_string": {
-            "query": "Haematostaphis barter",
-            "fields": [
-                "*"
             ]
-            }
         }
-        ]
+        },
+        "_source": {
+            "includes": [
+                "data.id",
+                "data.type",
+                "data.attributes.materialSampleName",
+                "included.attributes.name",
+                "data.attributes.dwcOtherCatalogNumbers",
+                "data.attributes.materialSampleType",
+                "data.attributes.materialSampleState",
+                "data.attributes.effectiveScientificName",
+                "included.attributes.startEventDateTime",
+                "included.type",
+            ]
+        }
     }
-    }
+
+    The "_source" parameter defines which fields to return. A good standard configuration
+    for "_source" is included in the examples above. Use this for standard material sample queries,
+    but adapt or remove "_source" from the queryBody according to the requirements.
+
+    More advanced query like faceted search using the "aggs" parameter (alongside "query") are also supported.
 
     The result returns the Elasticsearch response in json. Retrieve the count and the
     id(s) of the record.
     """,
 )
 async def search_objects(
-    query: dict[str, Any],
+    queryBody: dict[str, Any],
 ) -> str:
     """Search for digital objects in the Cordra repository with pagination support.
 
     Args:
-        query: The search query JSON object as in the examples above
+        queryBody: The search query JSON object as in the examples above
 
     Returns:
         JSON object containing the record data
     """
-    res = search_query(query)
+    res = search_query(queryBody)
     return res
 
 
